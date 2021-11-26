@@ -21,7 +21,7 @@ module.exports = withCommerceConfig({
     return [
       (isBC || isShopify || isSwell || isVendure || isSaleor) && {
         source: '/checkout',
-        destination: '/api/checkout',
+        destination: '/api/checkout', // Weird redirect from /pages to /api
       },
       // The logout is also an action so this route is not required, but it's also another way
       // you can allow a logout!

@@ -6,7 +6,8 @@ export default useCheckout as UseCheckout<typeof handler>
 export const handler: SWRHook<any> = {
   // Provide fetchOptions for SWR cache key
   fetchOptions: {
-    // TODO: Revise url and query
+    // TODO: Revise url and query once the integration supports checkout built into
+    // NextJS Commerce.
     url: 'checkout',
     query: 'show',
   },

@@ -46,11 +46,15 @@ const isomorphicConfig = {
     process.env.NEXT_PUBLIC_SPREE_IMAGES_QUALITY
   ),
   loginAfterSignup: process.env.NEXT_PUBLIC_SPREE_LOGIN_AFTER_SIGNUP === 'true',
+  stripeSecretKey: process.env.SPREE_STRIPE_SECRET_KEY,
+  stripePublishableKey: process.env.NEXT_PUBLIC_SPREE_STRIPE_PUBLISHABLE_KEY,
+  stripeSuccessUrl: process.env.SPREE_STRIPE_SUCCESS_URL,
+  stripeCancelUrl: process.env.SPREE_STRIPE_CANCEL_URL,
 }
 
 export default forceIsomorphicConfigValues(
   isomorphicConfig,
-  [],
+  ['stripeSecretKey', 'stripeSuccessUrl', 'stripeCancelUrl'],
   [
     'apiHost',
     'defaultLocale',
@@ -70,6 +74,7 @@ export default forceIsomorphicConfigValues(
     'imagesSize',
     'imagesQuality',
     'loginAfterSignup',
+    'stripePublishableKey',
   ]
 )
 
