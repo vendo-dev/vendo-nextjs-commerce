@@ -1,9 +1,14 @@
+import type { CookiesManager } from '../../types'
 import type { IToken } from '@spree/storefront-api-v2-sdk/types/interfaces/Token'
 import { getCartToken } from './cart-token'
 import { ensureUserTokenResponse } from './user-token-response'
 
-const ensureIToken = (): IToken | undefined => {
-  const userTokenResponse = ensureUserTokenResponse()
+const ensureIToken = ({
+  cookiesManager,
+}: {
+  cookiesManager: CookiesManager
+}): IToken | undefined => {
+  const userTokenResponse = ensureUserTokenResponse({ cookiesManager })
 
   if (userTokenResponse) {
     return {
@@ -11,7 +16,7 @@ const ensureIToken = (): IToken | undefined => {
     }
   }
 
-  const cartToken = getCartToken()
+  const cartToken = getCartToken({ cookiesManager })
 
   if (cartToken) {
     return {

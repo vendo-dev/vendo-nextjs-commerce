@@ -11,6 +11,7 @@ import {
 } from '../utils/tokens/user-token-response'
 import revokeUserTokens from '../utils/tokens/revoke-user-tokens'
 import TokensNotRejectedError from '../errors/TokensNotRejectedError'
+import withBrowserCookies from '../utils/cookies/with-browser-cookies'
 
 export default useLogout as UseLogout<typeof handler>
 
@@ -29,7 +30,7 @@ export const handler: MutationHook<LogoutHook> = {
       options
     )
 
-    const userToken = ensureUserTokenResponse()
+    const userToken = withBrowserCookies(ensureUserTokenResponse)({})
 
     if (userToken) {
       try {
@@ -46,7 +47,7 @@ export const handler: MutationHook<LogoutHook> = {
       }
 
       // Whether token revocation succeeded or not, remove them from local storage.
-      removeUserTokenResponse()
+      withBrowserCookies(removeUserTokenResponse)({})
     }
 
     return null

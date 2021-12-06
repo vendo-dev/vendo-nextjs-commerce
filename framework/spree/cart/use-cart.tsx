@@ -13,6 +13,7 @@ import ensureIToken from '../utils/tokens/ensure-itoken'
 import isLoggedIn from '../utils/tokens/is-logged-in'
 import createEmptyCart from '../utils/create-empty-cart'
 import { requireConfigValue } from '../isomorphic-config'
+import withBrowserCookies from '../utils/cookies/with-browser-cookies'
 
 const imagesSize = requireConfigValue('imagesSize') as string
 const imagesQuality = requireConfigValue('imagesQuality') as number
@@ -21,7 +22,7 @@ export default useCart as UseCart<typeof handler>
 
 // This handler avoids calling /api/cart.
 // There doesn't seem to be a good reason to call it.
-// So far, only @framework/bigcommerce uses it.
+// So far, only framework/bigcommerce uses it.
 export const handler: SWRHook<GetCartHook> = {
   // Provide fetchOptions for SWR cache key
   fetchOptions: {
@@ -39,7 +40,7 @@ export const handler: SWRHook<GetCartHook> = {
 
     let spreeCartResponse: IOrder | null
 
-    const token: IToken | undefined = ensureIToken()
+    const token: IToken | undefined = withBrowserCookies(ensureIToken)({})
 
     if (!token) {
       spreeCartResponse = null
@@ -92,7 +93,9 @@ export const handler: SWRHook<GetCartHook> = {
       spreeCartResponse = spreeCartCreateSuccessResponse
 
       if (!isLoggedIn()) {
-        setCartToken(spreeCartResponse.data.attributes.token)
+        withBrowserCookies(setCartToken)({
+          cartToken: spreeCartResponse.data.attributes.token,
+        })
       }
     }
 

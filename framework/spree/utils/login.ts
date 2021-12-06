@@ -7,6 +7,7 @@ import type {
   IOAuthToken,
   IToken,
 } from '@spree/storefront-api-v2-sdk/types/interfaces/Token'
+import withBrowserCookies from './cookies/with-browser-cookies'
 import { getCartToken, removeCartToken } from './tokens/cart-token'
 import { setUserTokenResponse } from './tokens/user-token-response'
 
@@ -26,10 +27,12 @@ const login = async (
     },
   })
 
-  setUserTokenResponse(spreeGetTokenSuccessResponse)
+  withBrowserCookies(setUserTokenResponse)({
+    token: spreeGetTokenSuccessResponse,
+  })
 
   if (associateGuestCart) {
-    const cartToken = getCartToken()
+    const cartToken = withBrowserCookies(getCartToken)({})
 
     if (cartToken) {
       // If the user had a cart as guest still use its contents
@@ -52,7 +55,7 @@ const login = async (
     }
   }
 
-  removeCartToken()
+  withBrowserCookies(removeCartToken)({})
 }
 
 export default login

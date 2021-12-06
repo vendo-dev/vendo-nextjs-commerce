@@ -1,15 +1,19 @@
 import { requireConfigValue } from '../../isomorphic-config'
-import Cookies from 'js-cookie'
 import type { IOAuthToken } from '@spree/storefront-api-v2-sdk/types/interfaces/Token'
 import UserTokenResponseParseError from '../../errors/UserTokenResponseParseError'
+import type { CookiesManager } from '../../types'
 
-export const getUserTokenResponse = (): IOAuthToken | undefined => {
-  const stringifiedToken = Cookies.get(
+export const getUserTokenResponse = ({
+  cookiesManager,
+}: {
+  cookiesManager: CookiesManager
+}): IOAuthToken | null => {
+  const stringifiedToken = cookiesManager.get(
     requireConfigValue('userCookieName') as string
   )
 
   if (!stringifiedToken) {
-    return undefined
+    return null
   }
 
   try {
@@ -27,32 +31,46 @@ export const getUserTokenResponse = (): IOAuthToken | undefined => {
  * Retrieves the saved user token response. If the response fails json parsing,
  * removes the saved token and returns @type {undefined} instead.
  */
-export const ensureUserTokenResponse = (): IOAuthToken | undefined => {
+export const ensureUserTokenResponse = ({
+  cookiesManager,
+}: {
+  cookiesManager: CookiesManager
+}): IOAuthToken | null => {
   try {
-    return getUserTokenResponse()
+    return getUserTokenResponse({ cookiesManager })
   } catch (error) {
     if (error instanceof UserTokenResponseParseError) {
-      removeUserTokenResponse()
+      removeUserTokenResponse({ cookiesManager })
 
-      return undefined
+      return null
     }
 
     throw error
   }
 }
 
-export const setUserTokenResponse = (token: IOAuthToken) => {
+export const setUserTokenResponse = ({
+  token,
+  cookiesManager,
+}: {
+  token: IOAuthToken
+  cookiesManager: CookiesManager
+}) => {
   const cookieOptions = {
     expires: requireConfigValue('userCookieExpire') as number,
   }
 
-  Cookies.set(
+  cookiesManager.set(
     requireConfigValue('userCookieName') as string,
     JSON.stringify(token),
     cookieOptions
   )
 }
 
-export const removeUserTokenResponse = () => {
-  Cookies.remove(requireConfigValue('userCookieName') as string)
+export const removeUserTokenResponse = ({
+  cookiesManager,
+}: {
+  cookiesManager: CookiesManager
+}) => {
+  cookiesManager.remove(requireConfigValue('userCookieName') as string)
 }
