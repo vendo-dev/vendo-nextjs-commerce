@@ -1,9 +1,6 @@
 import { Layout } from '@components/common'
 import { Text } from '@components/ui'
 
-// TODO: Clear the cart when visiting this page
-// TODO: Send a querystring with cart id and check if its the same
-
 export default function Success() {
   return (
     <div className="grid lg:grid-cols-12 w-full max-w-7xl mx-auto">
