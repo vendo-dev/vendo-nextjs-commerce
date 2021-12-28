@@ -1,5 +1,5 @@
 import { requireConfigValue } from '../../isomorphic-config'
-import type { CookiesManager } from '@framework/types'
+import type { CookiesManager } from '../../types'
 
 export const getCartToken = ({
   cookiesManager,

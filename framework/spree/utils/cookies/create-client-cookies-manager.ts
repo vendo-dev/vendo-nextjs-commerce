@@ -1,4 +1,4 @@
-import type { CookiesManager } from '@framework/types'
+import type { CookiesManager } from '../../types'
 import Cookies from 'js-cookie'
 
 const createClientCookiesManager = (): CookiesManager => {
