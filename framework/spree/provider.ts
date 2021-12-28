@@ -13,11 +13,23 @@ import { handler as useWishlist } from './wishlist/use-wishlist'
 import { handler as useWishlistAddItem } from './wishlist/use-add-item'
 import { handler as useWishlistRemoveItem } from './wishlist/use-remove-item'
 import { requireConfigValue } from './isomorphic-config'
+import beforeAsynchronous from './utils/before-asynchronous'
+import withBrowserCookies from './utils/cookies/with-browser-cookies'
+import ensureFreshUserAccessToken from './utils/tokens/ensure-fresh-user-access-token'
+import getBrowserSpreeClient from './utils/spree-clients/get-browser-spree-client'
+
+const spreeClient = getBrowserSpreeClient()
+
+const withEnsureFreshUserAccessToken = beforeAsynchronous(async () => {
+  await withBrowserCookies(ensureFreshUserAccessToken)({
+    client: spreeClient,
+  })
+})
 
 const spreeProvider = {
   locale: requireConfigValue('defaultLocale') as string,
   cartCookie: requireConfigValue('cartCookieName') as string,
-  fetcher,
+  fetcher: withEnsureFreshUserAccessToken(fetcher),
   cart: { useCart, useAddItem, useUpdateItem, useRemoveItem },
   customer: { useCustomer },
   products: { useSearch },

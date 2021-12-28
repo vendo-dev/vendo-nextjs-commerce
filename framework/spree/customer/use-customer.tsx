@@ -9,6 +9,7 @@ import { FetcherError } from '@commerce/utils/errors'
 import normalizeUser from '../utils/normalizations/normalize-user'
 import isLoggedIn from '../utils/tokens/is-logged-in'
 import ensureIToken from '../utils/tokens/ensure-itoken'
+import withBrowserCookies from '../utils/cookies/with-browser-cookies'
 
 export default useCustomer as UseCustomer<typeof handler>
 
@@ -31,7 +32,7 @@ export const handler: SWRHook<CustomerHook> = {
       return null
     }
 
-    const token: IToken | undefined = ensureIToken()
+    const token: IToken | undefined = withBrowserCookies(ensureIToken)({})
 
     if (!token) {
       return null

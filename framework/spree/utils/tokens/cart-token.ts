@@ -1,21 +1,35 @@
 import { requireConfigValue } from '../../isomorphic-config'
-import Cookies from 'js-cookie'
+import type { CookiesManager } from '../../types'
 
-export const getCartToken = () =>
-  Cookies.get(requireConfigValue('cartCookieName') as string)
+export const getCartToken = ({
+  cookiesManager,
+}: {
+  cookiesManager: CookiesManager
+}): string | null =>
+  cookiesManager.get(requireConfigValue('cartCookieName') as string)
 
-export const setCartToken = (cartToken: string) => {
+export const setCartToken = ({
+  cartToken,
+  cookiesManager,
+}: {
+  cartToken: string
+  cookiesManager: CookiesManager
+}) => {
   const cookieOptions = {
     expires: requireConfigValue('cartCookieExpire') as number,
   }
 
-  Cookies.set(
+  cookiesManager.set(
     requireConfigValue('cartCookieName') as string,
     cartToken,
     cookieOptions
   )
 }
 
-export const removeCartToken = () => {
-  Cookies.remove(requireConfigValue('cartCookieName') as string)
+export const removeCartToken = ({
+  cookiesManager,
+}: {
+  cookiesManager: CookiesManager
+}) => {
+  cookiesManager.remove(requireConfigValue('cartCookieName') as string)
 }

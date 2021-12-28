@@ -14,6 +14,7 @@ import ensureIToken from '../utils/tokens/ensure-itoken'
 import createEmptyCart from '../utils/create-empty-cart'
 import { setCartToken } from '../utils/tokens/cart-token'
 import isLoggedIn from '../utils/tokens/is-logged-in'
+import withBrowserCookies from '../utils/cookies/with-browser-cookies'
 
 export default useUpdateItem as UseUpdateItem<any>
 
@@ -40,15 +41,18 @@ export const handler: MutationHook<UpdateItemHook> = {
       })
     }
 
-    let token: IToken | undefined = ensureIToken()
+    let token: IToken | undefined = withBrowserCookies(ensureIToken)({})
 
     if (!token) {
       const { data: spreeCartCreateSuccessResponse } = await createEmptyCart(
         fetch
       )
 
-      setCartToken(spreeCartCreateSuccessResponse.data.attributes.token)
-      token = ensureIToken()
+      withBrowserCookies(setCartToken)({
+        cartToken: spreeCartCreateSuccessResponse.data.attributes.token,
+      })
+
+      token = withBrowserCookies(ensureIToken)({})
     }
 
     try {
@@ -85,9 +89,10 @@ export const handler: MutationHook<UpdateItemHook> = {
           await createEmptyCart(fetch)
 
         if (!isLoggedIn()) {
-          setCartToken(
-            spreeRetroactiveCartCreateSuccessResponse.data.attributes.token
-          )
+          withBrowserCookies(setCartToken)({
+            cartToken:
+              spreeRetroactiveCartCreateSuccessResponse.data.attributes.token,
+          })
         }
 
         // Return an empty cart. The user has to update the item again.

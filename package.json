@@ -23,7 +23,7 @@
   "dependencies": {
     "@chec/commerce.js": "^2.8.0",
     "@react-spring/web": "^9.2.1",
-    "@spree/storefront-api-v2-sdk": "^5.0.1",
+    "@spree/storefront-api-v2-sdk": "^5.1.0",
     "@vercel/fetch": "^6.1.1",
     "autoprefixer": "^10.2.6",
     "body-scroll-lock": "^3.1.5",

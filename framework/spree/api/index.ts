@@ -1,6 +1,6 @@
 import type { CommerceAPI, CommerceAPIConfig } from '@commerce/api'
 import { getCommerceApi as commerceApi } from '@commerce/api'
-import createApiFetch from './utils/create-api-fetch'
+import apiFetcher from './utils/api-fetcher'
 
 import getAllPages from './operations/get-all-pages'
 import getPage from './operations/get-page'
@@ -18,7 +18,7 @@ const config: SpreeApiConfig = {
   cartCookie: '',
   customerCookie: '',
   cartCookieMaxAge: 2592000,
-  fetch: createApiFetch(() => getCommerceApi().getConfig()),
+  fetch: apiFetcher,
 }
 
 const operations = {

@@ -14,6 +14,7 @@ import ensureIToken from '../utils/tokens/ensure-itoken'
 import createEmptyCart from '../utils/create-empty-cart'
 import { FetcherError } from '@commerce/utils/errors'
 import isLoggedIn from '../utils/tokens/is-logged-in'
+import withBrowserCookies from '../utils/cookies/with-browser-cookies'
 
 export default useAddItem as UseAddItem<typeof handler>
 
@@ -36,7 +37,7 @@ export const handler: MutationHook<AddItemHook> = {
 
     const safeQuantity = quantity ?? 1
 
-    let token: IToken | undefined = ensureIToken()
+    let token: IToken | undefined = withBrowserCookies(ensureIToken)({})
 
     const addItemParameters: AddItem = {
       variant_id: variantId,
@@ -57,8 +58,11 @@ export const handler: MutationHook<AddItemHook> = {
         fetch
       )
 
-      setCartToken(spreeCartCreateSuccessResponse.data.attributes.token)
-      token = ensureIToken()
+      withBrowserCookies(setCartToken)({
+        cartToken: spreeCartCreateSuccessResponse.data.attributes.token,
+      })
+
+      token = withBrowserCookies(ensureIToken)({})
     }
 
     try {
@@ -78,9 +82,10 @@ export const handler: MutationHook<AddItemHook> = {
           await createEmptyCart(fetch)
 
         if (!isLoggedIn()) {
-          setCartToken(
-            spreeRetroactiveCartCreateSuccessResponse.data.attributes.token
-          )
+          withBrowserCookies(setCartToken)({
+            cartToken:
+              spreeRetroactiveCartCreateSuccessResponse.data.attributes.token,
+          })
         }
 
         // Return an empty cart. The user has to add the item again.

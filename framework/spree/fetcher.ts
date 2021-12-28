@@ -1,9 +1,8 @@
 import type { Fetcher } from '@commerce/utils/types'
 import convertSpreeErrorToGraphQlError from './utils/convert-spree-error-to-graph-ql-error'
-import { makeClient, errors } from '@spree/storefront-api-v2-sdk'
+import { errors } from '@spree/storefront-api-v2-sdk'
 import type { ResultResponse } from '@spree/storefront-api-v2-sdk/types/interfaces/ResultResponse'
 import type { GraphQLFetcherResult } from '@commerce/api'
-import { requireConfigValue } from './isomorphic-config'
 import getSpreeSdkMethodFromEndpointPath from './utils/get-spree-sdk-method-from-endpoint-path'
 import SpreeSdkMethodFromEndpointPathError from './errors/SpreeSdkMethodFromEndpointPathError'
 import type {
@@ -11,22 +10,8 @@ import type {
   SpreeSdkResponse,
   SpreeSdkResponseWithRawResponse,
 } from './types'
-import createCustomizedFetchFetcher, {
-  fetchResponseKey,
-} from './utils/create-customized-fetch-fetcher'
-import ensureFreshUserAccessToken from './utils/tokens/ensure-fresh-user-access-token'
-import RefreshTokenError from './errors/RefreshTokenError'
-
-const client = makeClient({
-  host: requireConfigValue('apiHost') as string,
-  createFetcher: (fetcherOptions) => {
-    return createCustomizedFetchFetcher({
-      fetch: globalThis.fetch,
-      requestConstructor: globalThis.Request,
-      ...fetcherOptions,
-    })
-  },
-})
+import { fetchResponseKey } from './utils/create-customized-fetch-fetcher'
+import getBrowserSpreeClient from './utils/spree-clients/get-browser-spree-client'
 
 const normalizeSpreeSuccessResponse = (
   storeResponse: ResultResponse<SpreeSdkResponseWithRawResponse>
@@ -39,6 +24,8 @@ const normalizeSpreeSuccessResponse = (
     res: rawFetchResponse,
   }
 }
+
+const spreeClient = getBrowserSpreeClient()
 
 const fetcher: Fetcher<GraphQLFetcherResult<SpreeSdkResponse>> = async (
   requestOptions
@@ -59,18 +46,12 @@ const fetcher: Fetcher<GraphQLFetcherResult<SpreeSdkResponse>> = async (
     )
   }
 
-  const {
-    methodPath,
-    arguments: args,
-    refreshExpiredAccessToken = true,
-    replayUnauthorizedRequest = true,
-  } = variables as FetcherVariables
+  const { methodPath, arguments: args } = variables as FetcherVariables
 
-  if (refreshExpiredAccessToken) {
-    await ensureFreshUserAccessToken(client)
-  }
-
-  const spreeSdkMethod = getSpreeSdkMethodFromEndpointPath(client, methodPath)
+  const spreeSdkMethod = getSpreeSdkMethodFromEndpointPath(
+    spreeClient,
+    methodPath
+  )
 
   const storeResponse: ResultResponse<SpreeSdkResponseWithRawResponse> =
     await spreeSdkMethod(...args)
@@ -80,31 +61,6 @@ const fetcher: Fetcher<GraphQLFetcherResult<SpreeSdkResponse>> = async (
   }
 
   const storeResponseError = storeResponse.fail()
-
-  if (
-    storeResponseError instanceof errors.SpreeError &&
-    storeResponseError.serverResponse.status === 401 &&
-    replayUnauthorizedRequest
-  ) {
-    console.info(
-      'Request ended with 401. Replaying request after refreshing the user token.'
-    )
-
-    await ensureFreshUserAccessToken(client)
-
-    const replayedStoreResponse: ResultResponse<SpreeSdkResponseWithRawResponse> =
-      await spreeSdkMethod(...args)
-
-    if (replayedStoreResponse.isSuccess()) {
-      return normalizeSpreeSuccessResponse(replayedStoreResponse)
-    }
-
-    console.warn('Replaying the request failed', replayedStoreResponse.fail())
-
-    throw new RefreshTokenError(
-      'Could not authorize request with current access token.'
-    )
-  }
 
   if (storeResponseError instanceof errors.SpreeError) {
     throw convertSpreeErrorToGraphQlError(storeResponseError)

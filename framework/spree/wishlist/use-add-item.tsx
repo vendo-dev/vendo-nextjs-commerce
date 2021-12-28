@@ -13,6 +13,7 @@ import ensureIToken from '../utils/tokens/ensure-itoken'
 import type { IToken } from '@spree/storefront-api-v2-sdk/types/interfaces/Token'
 import type { AddItemHook } from '@commerce/types/wishlist'
 import isLoggedIn from '../utils/tokens/is-logged-in'
+import withBrowserCookies from '../utils/cookies/with-browser-cookies'
 
 export default useAddItem as UseAddItem<typeof handler>
 
@@ -38,7 +39,7 @@ export const handler: MutationHook<ExplicitWishlistAddItemHook> = {
       return null
     }
 
-    let token: IToken | undefined = ensureIToken()
+    let token: IToken | undefined = withBrowserCookies(ensureIToken)({})
 
     const addItemParameters: WishlistsAddWishedItem = {
       variant_id: `${variantId}`,

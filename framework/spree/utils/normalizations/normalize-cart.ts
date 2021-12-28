@@ -10,7 +10,7 @@ import type { OrderAttr } from '@spree/storefront-api-v2-sdk/types/interfaces/Or
 import type { ProductAttr } from '@spree/storefront-api-v2-sdk/types/interfaces/Product'
 import type { Image } from '@commerce/types/common'
 import { jsonApi } from '@spree/storefront-api-v2-sdk'
-import createGetAbsoluteImageUrl from '../create-get-absolute-image-url'
+import createGetImageUrl from '../create-get-image-url'
 import getMediaGallery from '../get-media-gallery'
 import type {
   LineItemAttr,
@@ -55,7 +55,7 @@ const normalizeVariant = (
 
   const variantImage = getMediaGallery(
     spreeVariantImageRecords,
-    createGetAbsoluteImageUrl(requireConfigValue('imageHost') as string)
+    createGetImageUrl()
   )[0]
 
   if (variantImage) {
@@ -70,7 +70,7 @@ const normalizeVariant = (
 
     const productImage = getMediaGallery(
       spreeProductImageRecords,
-      createGetAbsoluteImageUrl(requireConfigValue('imageHost') as string)
+      createGetImageUrl()
     )[0]
 
     lineItemImage = productImage

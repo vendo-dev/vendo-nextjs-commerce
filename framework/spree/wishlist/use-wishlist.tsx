@@ -9,6 +9,7 @@ import type { Wishlist } from '@spree/storefront-api-v2-sdk/types/interfaces/Wis
 import ensureIToken from '../utils/tokens/ensure-itoken'
 import normalizeWishlist from '../utils/normalizations/normalize-wishlist'
 import isLoggedIn from '../utils/tokens/is-logged-in'
+import withBrowserCookies from '../utils/cookies/with-browser-cookies'
 
 export default useWishlist as UseWishlist<typeof handler>
 
@@ -33,7 +34,7 @@ export const handler: SWRHook<GetWishlistHook> = {
 
     // TODO: Optimize with includeProducts.
 
-    const token: IToken | undefined = ensureIToken()
+    const token: IToken | undefined = withBrowserCookies(ensureIToken)({})
 
     const { data: spreeWishlistsDefaultSuccessResponse } = await fetch<
       GraphQLFetcherResult<Wishlist>

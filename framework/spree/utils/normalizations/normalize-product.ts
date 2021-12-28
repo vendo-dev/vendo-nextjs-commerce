@@ -9,7 +9,7 @@ import type { RelationType } from '@spree/storefront-api-v2-sdk/types/interfaces
 import { jsonApi } from '@spree/storefront-api-v2-sdk'
 import { JsonApiDocument } from '@spree/storefront-api-v2-sdk/types/interfaces/JsonApi'
 import { requireConfigValue } from '../../isomorphic-config'
-import createGetAbsoluteImageUrl from '../create-get-absolute-image-url'
+import createGetImageUrl from '../create-get-image-url'
 import expandOptions from '../expand-options'
 import getMediaGallery from '../get-media-gallery'
 import getProductPath from '../get-product-path'
@@ -208,10 +208,7 @@ const normalizeProduct = (
     ...spreeVariantImageRecords,
   ]
 
-  const productImages = getMediaGallery(
-    spreeImageRecords,
-    createGetAbsoluteImageUrl(requireConfigValue('imageHost') as string)
-  )
+  const productImages = getMediaGallery(spreeImageRecords, createGetImageUrl())
 
   const images: ProductImage[] =
     productImages.length === 0

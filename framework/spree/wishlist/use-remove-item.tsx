@@ -9,6 +9,7 @@ import ensureIToken from '../utils/tokens/ensure-itoken'
 import type { IToken } from '@spree/storefront-api-v2-sdk/types/interfaces/Token'
 import type { GraphQLFetcherResult } from '@commerce/api'
 import type { WishedItem } from '@spree/storefront-api-v2-sdk/types/interfaces/WishedItem'
+import withBrowserCookies from '../utils/cookies/with-browser-cookies'
 
 export default useRemoveItem as UseRemoveItem<typeof handler>
 
@@ -32,7 +33,7 @@ export const handler: MutationHook<ExplicitWishlistRemoveItemHook> = {
       return null
     }
 
-    let token: IToken | undefined = ensureIToken()
+    let token: IToken | undefined = withBrowserCookies(ensureIToken)({})
 
     await fetch<GraphQLFetcherResult<WishedItem>>({
       variables: {

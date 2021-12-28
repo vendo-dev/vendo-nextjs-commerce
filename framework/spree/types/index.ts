@@ -13,6 +13,7 @@ import type {
   WishlistItemBody,
   WishlistTypes,
 } from '@commerce/types/wishlist'
+import type { CookieAttributes } from 'js-cookie'
 
 export type UnknownObjectValues = Record<string, unknown>
 
@@ -162,3 +163,11 @@ export type ExplicitWishlistRemoveItemHook = RemoveItemHook & {
   fetcherInput: { wishlistToken?: string }
   body: { wishlistToken?: string }
 }
+
+export type CookiesManager = {
+  get(name: string): string | null
+  set(name: string, value: string, options: CookieAttributes): void
+  remove(name: string): void
+}
+
+export type AnyFunction = (...args: any[]) => any
