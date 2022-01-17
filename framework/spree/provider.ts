@@ -3,6 +3,8 @@ import { handler as useCart } from './cart/use-cart'
 import { handler as useAddItem } from './cart/use-add-item'
 import { handler as useUpdateItem } from './cart/use-update-item'
 import { handler as useRemoveItem } from './cart/use-remove-item'
+import { handler as useAddCouponCode } from './cart/use-add-coupon-code'
+import { handler as useRemoveAllCoupons } from './cart/use-remove-all-coupons'
 import { handler as useCustomer } from './customer/use-customer'
 import { handler as useSearch } from './product/use-search'
 import { handler as useLogin } from './auth/use-login'
@@ -30,7 +32,14 @@ const spreeProvider = {
   locale: requireConfigValue('defaultLocale') as string,
   cartCookie: requireConfigValue('cartCookieName') as string,
   fetcher: withEnsureFreshUserAccessToken(fetcher),
-  cart: { useCart, useAddItem, useUpdateItem, useRemoveItem },
+  cart: {
+    useCart,
+    useAddItem,
+    useUpdateItem,
+    useRemoveItem,
+    useAddCouponCode,
+    useRemoveAllCoupons,
+  },
   customer: { useCustomer },
   products: { useSearch },
   auth: { useLogin, useLogout, useSignup },

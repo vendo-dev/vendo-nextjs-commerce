@@ -1,18 +1,21 @@
 import type { CookiesManager } from '../../types'
-import type { IToken } from '@spree/storefront-api-v2-sdk/types/interfaces/Token'
+import type {
+  RequiredAnyToken,
+  IToken,
+} from '@spree/storefront-api-v2-sdk/types/interfaces/Token'
 import { getCartToken } from './cart-token'
 import { ensureUserTokenResponse } from './user-token-response'
 
-const ensureIToken = ({
+const ensureAnyToken = ({
   cookiesManager,
 }: {
   cookiesManager: CookiesManager
-}): IToken | undefined => {
+}): RequiredAnyToken | undefined => {
   const userTokenResponse = ensureUserTokenResponse({ cookiesManager })
 
   if (userTokenResponse) {
     return {
-      bearerToken: userTokenResponse.access_token,
+      bearer_token: userTokenResponse.access_token,
     }
   }
 
@@ -20,11 +23,36 @@ const ensureIToken = ({
 
   if (cartToken) {
     return {
-      orderToken: cartToken,
+      order_token: cartToken,
     }
   }
 
   return undefined
 }
+
+// TODO: Convert all ensureIToken calls to ensureAnyToken as recommended by Spree SDK.
+const ensureIToken = ({
+  cookiesManager,
+}: {
+  cookiesManager: CookiesManager
+}): IToken | undefined => {
+  const anyToken = ensureAnyToken({ cookiesManager })
+
+  if (!anyToken) return undefined
+
+  const iToken: IToken = {}
+
+  if (anyToken.bearer_token) {
+    iToken.bearerToken = anyToken.bearer_token
+  }
+
+  if (anyToken.order_token) {
+    iToken.orderToken = anyToken.order_token
+  }
+
+  return iToken
+}
+
+export { ensureAnyToken }
 
 export default ensureIToken

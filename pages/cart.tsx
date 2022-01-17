@@ -5,7 +5,7 @@ import commerce from '@lib/api/commerce'
 import { Layout } from '@components/common'
 import { Button, Text } from '@components/ui'
 import { Bag, Cross, Check, MapPin, CreditCard } from '@components/icons'
-import { CartItem } from '@components/cart'
+import { CartItem, PromotionCode } from '@components/cart'
 import { useUI } from '@components/ui/context'
 
 export async function getStaticProps({
@@ -35,6 +35,17 @@ export default function Cart() {
       currencyCode: data.currency.code,
     }
   )
+
+  // TODO: Support all discounts instead of only the first.
+  // Supporting all discounts requires changes in usePrice
+  // or a new hook able to handle an array containing prices.
+  const { price: discountTotal } = usePrice(
+    data?.discounts?.[0] && {
+      amount: Number(data.discounts[0].value),
+      currencyCode: data.currency.code,
+    }
+  )
+
   const { price: total } = usePrice(
     data && {
       amount: Number(data.totalPrice),
@@ -143,11 +154,21 @@ export default function Cart() {
             </>
           )}
           <div className="border-t border-accent-2">
+            <PromotionCode />
+
             <ul className="py-3">
               <li className="flex justify-between py-1">
                 <span>Subtotal</span>
                 <span>{subTotal}</span>
               </li>
+
+              {discountTotal && (
+                <li className="flex justify-between py-1">
+                  <span>Promotion</span>
+                  <span>{discountTotal}</span>
+                </li>
+              )}
+
               <li className="flex justify-between py-1">
                 <span>Taxes</span>
                 <span>Calculated at checkout</span>
@@ -157,6 +178,7 @@ export default function Cart() {
                 <span className="font-bold tracking-wide">FREE</span>
               </li>
             </ul>
+
             <div className="flex justify-between border-t border-accent-2 py-3 font-bold mb-10">
               <span>Total</span>
               <span>{total}</span>

@@ -15,10 +15,11 @@ import createEmptyCart from '../utils/create-empty-cart'
 import { setCartToken } from '../utils/tokens/cart-token'
 import isLoggedIn from '../utils/tokens/is-logged-in'
 import withBrowserCookies from '../utils/cookies/with-browser-cookies'
+import type { SpreeCartTypes } from '../types/hooks/cart'
 
 export default useUpdateItem as UseUpdateItem<any>
 
-export const handler: MutationHook<UpdateItemHook> = {
+export const handler: MutationHook<UpdateItemHook<SpreeCartTypes>> = {
   // Provide fetchOptions for SWR cache key
   fetchOptions: {
     url: 'cart',
@@ -67,6 +68,7 @@ export const handler: MutationHook<UpdateItemHook> = {
           'line_items.variant.images',
           'line_items.variant.option_values',
           'line_items.variant.product.option_types',
+          'promotions',
         ].join(','),
       }
 
@@ -108,42 +110,43 @@ export const handler: MutationHook<UpdateItemHook> = {
     }
   },
   useHook: ({ fetch }) => {
-    const useWrappedHook: ReturnType<MutationHook<UpdateItemHook>['useHook']> =
-      (context) => {
-        const { mutate } = useCart()
+    const useWrappedHook: ReturnType<
+      MutationHook<UpdateItemHook<SpreeCartTypes>>['useHook']
+    > = (context) => {
+      const { mutate } = useCart()
 
-        return useMemo(
-          () =>
-            debounce(async (input: UpdateItemHook['actionInput']) => {
-              const itemId = context?.item?.id
-              const productId = input.productId ?? context?.item?.productId
-              const variantId = input.variantId ?? context?.item?.variantId
-              const quantity = input.quantity
+      return useMemo(
+        () =>
+          debounce(async (input: UpdateItemHook['actionInput']) => {
+            const itemId = context?.item?.id
+            const productId = input.productId ?? context?.item?.productId
+            const variantId = input.variantId ?? context?.item?.variantId
+            const quantity = input.quantity
 
-              if (!itemId || !productId || !variantId) {
-                throw new ValidationError({
-                  message: 'Invalid input used for this operation',
-                })
-              }
-
-              const data = await fetch({
-                input: {
-                  item: {
-                    productId,
-                    variantId,
-                    quantity,
-                  },
-                  itemId,
-                },
+            if (!itemId || !productId || !variantId) {
+              throw new ValidationError({
+                message: 'Invalid input used for this operation',
               })
+            }
 
-              await mutate(data, false)
+            const data = await fetch({
+              input: {
+                item: {
+                  productId,
+                  variantId,
+                  quantity,
+                },
+                itemId,
+              },
+            })
 
-              return data
-            }, context?.wait ?? 500),
-          [mutate, context]
-        )
-      }
+            await mutate(data, false)
+
+            return data
+          }, context?.wait ?? 500),
+        [mutate, context]
+      )
+    }
 
     return useWrappedHook
   },
