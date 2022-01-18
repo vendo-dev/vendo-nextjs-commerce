@@ -1,5 +1,4 @@
 import type {
-  Cart,
   LineItem,
   ProductVariant,
   SelectedOption,
@@ -19,7 +18,7 @@ import type {
   SpreeSdkResponse,
   VariantAttr,
 } from '../../types'
-import type { SpreeCart } from '../../types/hooks/cart'
+import type { SpreeCart, SpreeDiscount } from '../../types/hooks/cart'
 
 const placeholderImage = requireConfigValue('lineItemPlaceholderImageUrl') as
   | string
@@ -192,12 +191,20 @@ const normalizeCart = (
     )
     .map((lineItem) => normalizeLineItem(spreeSuccessResponse, lineItem))
 
-  const discounts = jsonApi
-    .findRelationshipDocuments(spreeSuccessResponse, spreeCart, 'promotions')
-    .map((promotion) => ({
-      value: parseFloat(promotion.attributes.amount),
-      name: promotion.attributes.name,
-    }))
+  const firstSpreeDiscount = jsonApi.findRelationshipDocuments(
+    spreeSuccessResponse,
+    spreeCart,
+    'promotions'
+  )[0]
+
+  const discounts: SpreeDiscount[] = firstSpreeDiscount
+    ? [
+        {
+          value: parseFloat(spreeCart.attributes.promo_total),
+          name: firstSpreeDiscount.attributes.name,
+        },
+      ]
+    : []
 
   return {
     id: spreeCart.id,
