@@ -115,6 +115,12 @@ const PromotionCode = () => {
     validate()
   }, [validate])
 
+  useEffect(() => {
+    // If there are any changes in the cart, revalidate the promo code.
+    // Some promotions depend on the contents of the cart.
+    validate()
+  }, [cart.data, validate])
+
   if (!cart.data) {
     return null
   }
