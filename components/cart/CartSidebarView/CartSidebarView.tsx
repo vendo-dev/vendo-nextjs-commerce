@@ -9,6 +9,7 @@ import { Bag, Cross, Check } from '@components/icons'
 import useCart from '@framework/cart/use-cart'
 import usePrice from '@framework/product/use-price'
 import SidebarLayout from '@components/common/SidebarLayout'
+import PromotionCode from '../PromotionCode'
 
 const CartSidebarView: FC = () => {
   const { closeSidebar, setSidebarView } = useUI()
@@ -20,12 +21,24 @@ const CartSidebarView: FC = () => {
       currencyCode: data.currency.code,
     }
   )
+
+  // TODO: Support all discounts instead of only the first.
+  // Supporting all discounts requires changes in usePrice
+  // or a new hook able to handle an array containing prices.
+  const { price: discountTotal } = usePrice(
+    data?.discounts?.[0] && {
+      amount: Number(data.discounts[0].value),
+      currencyCode: data.currency.code,
+    }
+  )
+
   const { price: total } = usePrice(
     data && {
       amount: Number(data.totalPrice),
       currencyCode: data.currency.code,
     }
   )
+
   const handleClose = () => closeSidebar()
   const goToCheckout = () => setSidebarView('CHECKOUT_VIEW')
 
@@ -92,11 +105,21 @@ const CartSidebarView: FC = () => {
           </div>
 
           <div className="flex-shrink-0 px-6 py-6 sm:px-6 sticky z-20 bottom-0 w-full right-0 left-0 bg-accent-0 border-t text-sm">
+            <PromotionCode />
+
             <ul className="pb-2">
               <li className="flex justify-between py-1">
                 <span>Subtotal</span>
                 <span>{subTotal}</span>
               </li>
+
+              {discountTotal && (
+                <li className="flex justify-between py-1">
+                  <span>Promotion</span>
+                  <span>{discountTotal}</span>
+                </li>
+              )}
+
               <li className="flex justify-between py-1">
                 <span>Taxes</span>
                 <span>Calculated at checkout</span>
@@ -106,10 +129,12 @@ const CartSidebarView: FC = () => {
                 <span className="font-bold tracking-wide">FREE</span>
               </li>
             </ul>
+
             <div className="flex justify-between border-t border-accent-2 py-3 font-bold mb-2">
               <span>Total</span>
               <span>{total}</span>
             </div>
+
             <div>
               {process.env.COMMERCE_CUSTOMCHECKOUT_ENABLED ? (
                 <Button Component="a" width="100%" onClick={goToCheckout}>

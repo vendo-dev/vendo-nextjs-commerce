@@ -15,10 +15,11 @@ import createEmptyCart from '../utils/create-empty-cart'
 import { FetcherError } from '@commerce/utils/errors'
 import isLoggedIn from '../utils/tokens/is-logged-in'
 import withBrowserCookies from '../utils/cookies/with-browser-cookies'
+import type { SpreeCartTypes } from '../types/hooks/cart'
 
 export default useAddItem as UseAddItem<typeof handler>
 
-export const handler: MutationHook<AddItemHook> = {
+export const handler: MutationHook<AddItemHook<SpreeCartTypes>> = {
   // Provide fetchOptions for SWR cache key
   fetchOptions: {
     url: 'cart',
@@ -50,6 +51,7 @@ export const handler: MutationHook<AddItemHook> = {
         'line_items.variant.images',
         'line_items.variant.option_values',
         'line_items.variant.product.option_types',
+        'promotions',
       ].join(','),
     }
 
@@ -101,21 +103,22 @@ export const handler: MutationHook<AddItemHook> = {
     }
   },
   useHook: ({ fetch }) => {
-    const useWrappedHook: ReturnType<MutationHook<AddItemHook>['useHook']> =
-      () => {
-        const { mutate } = useCart()
+    const useWrappedHook: ReturnType<
+      MutationHook<AddItemHook<SpreeCartTypes>>['useHook']
+    > = () => {
+      const { mutate } = useCart()
 
-        return useCallback(
-          async (input) => {
-            const data = await fetch({ input })
+      return useCallback(
+        async (input) => {
+          const data = await fetch({ input })
 
-            await mutate(data, false)
+          await mutate(data, false)
 
-            return data
-          },
-          [mutate]
-        )
-      }
+          return data
+        },
+        [mutate]
+      )
+    }
 
     return useWrappedHook
   },

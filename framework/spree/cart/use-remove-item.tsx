@@ -15,10 +15,11 @@ import { setCartToken } from '../utils/tokens/cart-token'
 import { FetcherError } from '@commerce/utils/errors'
 import isLoggedIn from '../utils/tokens/is-logged-in'
 import withBrowserCookies from '../utils/cookies/with-browser-cookies'
+import type { SpreeCartTypes } from '../types/hooks/cart'
 
 export default useRemoveItem as UseRemoveItem<typeof handler>
 
-export const handler: MutationHook<RemoveItemHook> = {
+export const handler: MutationHook<RemoveItemHook<SpreeCartTypes>> = {
   // Provide fetchOptions for SWR cache key
   fetchOptions: {
     url: 'cart',
@@ -58,6 +59,7 @@ export const handler: MutationHook<RemoveItemHook> = {
         'line_items.variant.images',
         'line_items.variant.option_values',
         'line_items.variant.product.option_types',
+        'promotions',
       ].join(','),
     }
 
@@ -99,24 +101,25 @@ export const handler: MutationHook<RemoveItemHook> = {
     }
   },
   useHook: ({ fetch }) => {
-    const useWrappedHook: ReturnType<MutationHook<RemoveItemHook>['useHook']> =
-      () => {
-        const { mutate } = useCart()
+    const useWrappedHook: ReturnType<
+      MutationHook<RemoveItemHook<SpreeCartTypes>>['useHook']
+    > = () => {
+      const { mutate } = useCart()
 
-        return useCallback(
-          async (input) => {
-            const data = await fetch({ input: { itemId: input.id } })
+      return useCallback(
+        async (input) => {
+          const data = await fetch({ input: { itemId: input.id } })
 
-            // Upon calling cart.removeItem, Spree returns the old version of the cart,
-            // with the already removed line item. Invalidate the useCart mutation
-            // to fetch the cart again.
-            await mutate(data, true)
+          // Upon calling cart.removeItem, Spree returns the old version of the cart,
+          // with the already removed line item. Invalidate the useCart mutation
+          // to fetch the cart again.
+          await mutate(data, true)
 
-            return data
-          },
-          [mutate]
-        )
-      }
+          return data
+        },
+        [mutate]
+      )
+    }
 
     return useWrappedHook
   },

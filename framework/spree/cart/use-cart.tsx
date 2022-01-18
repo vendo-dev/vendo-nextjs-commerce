@@ -14,6 +14,7 @@ import isLoggedIn from '../utils/tokens/is-logged-in'
 import createEmptyCart from '../utils/create-empty-cart'
 import { requireConfigValue } from '../isomorphic-config'
 import withBrowserCookies from '../utils/cookies/with-browser-cookies'
+import type { SpreeCartTypes } from '../types/hooks/cart'
 
 const imagesSize = requireConfigValue('imagesSize') as string
 const imagesQuality = requireConfigValue('imagesQuality') as number
@@ -23,7 +24,7 @@ export default useCart as UseCart<typeof handler>
 // This handler avoids calling /api/cart.
 // There doesn't seem to be a good reason to call it.
 // So far, only framework/bigcommerce uses it.
-export const handler: SWRHook<GetCartHook> = {
+export const handler: SWRHook<GetCartHook<SpreeCartTypes>> = {
   // Provide fetchOptions for SWR cache key
   fetchOptions: {
     url: 'cart',
@@ -62,6 +63,7 @@ export const handler: SWRHook<GetCartHook> = {
                   'line_items.variant.images',
                   'line_items.variant.option_values',
                   'line_items.variant.product.option_types',
+                  'promotions',
                 ].join(','),
                 image_transformation: {
                   quality: imagesQuality,
@@ -102,9 +104,9 @@ export const handler: SWRHook<GetCartHook> = {
     return normalizeCart(spreeCartResponse, spreeCartResponse.data)
   },
   useHook: ({ useData }) => {
-    const useWrappedHook: ReturnType<SWRHook<GetCartHook>['useHook']> = (
-      input
-    ) => {
+    const useWrappedHook: ReturnType<
+      SWRHook<GetCartHook<SpreeCartTypes>>['useHook']
+    > = (input) => {
       const response = useData({
         swrOptions: { revalidateOnFocus: false, ...input?.swrOptions },
       })
