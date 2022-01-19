@@ -112,10 +112,12 @@ const getCheckout: CheckoutEndpoint['handlers']['getCheckout'] = async ({
       return
     }
 
-    response.status(500)
-    response.setHeader('Content-Type', 'text/html')
-    response.write(unhandledErrorCheckoutTemplate(unknownErrorMessage))
-    response.end()
+    // response.status(500)
+    // response.setHeader('Content-Type', 'text/html')
+    // response.write(unhandledErrorCheckoutTemplate(unknownErrorMessage))
+    // response.end()
+
+    throw error
   }
 }
 
