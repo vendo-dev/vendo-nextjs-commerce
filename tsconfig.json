@@ -15,6 +15,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "useUnknownInCatchVariables": false,
     "paths": {
       "@lib/*": ["lib/*"],
       "@utils/*": ["utils/*"],
@@ -39,6 +40,6 @@
     "./framework/spree",
     "./framework/ordercloud",
     "./framework/kibocommerce",
-     "./framework/commercejs"
+    "./framework/commercejs"
   ]
 }

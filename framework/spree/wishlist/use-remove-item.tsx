@@ -63,7 +63,7 @@ export const handler: MutationHook<ExplicitWishlistRemoveItemHook> = {
             },
           })
 
-          await wishlist.revalidate()
+          await wishlist.mutate()
 
           return data
         },

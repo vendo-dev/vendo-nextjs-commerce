@@ -12,6 +12,7 @@ import type {
 } from './types'
 import { fetchResponseKey } from './utils/create-customized-fetch-fetcher'
 import getBrowserSpreeClient from './utils/spree-clients/get-browser-spree-client'
+import prettyPrintSpreeSdkErrors from './utils/pretty-print-spree-sdk-errors'
 
 const normalizeSpreeSuccessResponse = (
   storeResponse: ResultResponse<SpreeSdkResponseWithRawResponse>
@@ -63,6 +64,12 @@ const fetcher: Fetcher<GraphQLFetcherResult<SpreeSdkResponse>> = async (
   const storeResponseError = storeResponse.fail()
 
   if (storeResponseError instanceof errors.SpreeError) {
+    console.error(
+      `Request to spree resulted in an error:\n\n${prettyPrintSpreeSdkErrors(
+        storeResponse.fail()
+      )}`
+    )
+
     throw convertSpreeErrorToGraphQlError(storeResponseError)
   }
 
