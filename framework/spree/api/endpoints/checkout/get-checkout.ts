@@ -1,6 +1,8 @@
+import type { IToken } from '@spree/storefront-api-v2-sdk/types/interfaces/Token'
+import * as Sentry from '@sentry/nextjs'
+import type { StripeCheckoutSessionSummary } from '@spree/storefront-api-v2-sdk/types/interfaces/StripeCheckoutSessionSummary'
 import type { CheckoutEndpoint } from '.'
 import { requireConfigValue } from '../../../isomorphic-config'
-import type { IToken } from '@spree/storefront-api-v2-sdk/types/interfaces/Token'
 import ensureIToken from '../../../utils/tokens/ensure-itoken'
 import MissingTokenError from '../../../errors/MissingTokenError'
 import createServerCookiesManager from '../../../utils/cookies/create-server-cookies-manager'
@@ -8,7 +10,6 @@ import withPreconfiguredOptions from '../../../utils/with-preconfigured-options'
 import ensureFreshUserAccessToken from '../../../utils/tokens/ensure-fresh-user-access-token'
 import getServerSpreeClient from '../../../utils/spree-clients/get-server-spree-client'
 import type { SpreeSdkVariables } from '../../../types'
-import type { StripeCheckoutSessionSummary } from '@spree/storefront-api-v2-sdk/types/interfaces/StripeCheckoutSessionSummary'
 import { FetcherError } from '../../../../commerce/utils/errors'
 import MissingCartError from '../../../errors/MissingCartError'
 
@@ -94,6 +95,12 @@ const getCheckout: CheckoutEndpoint['handlers']['getCheckout'] = async ({
     response.redirect(303, stripeSessionUrl)
   } catch (error) {
     console.error('Cannot visit checkout. Error: ', error)
+
+    // framework/spree/api/endpoints/checkout/get-checkout.ts is a special case
+    // requiring manual error logging. The reason is it's a rewrite of /pages/checkout
+    // and is displayed to the end-user directly instead of being consumed
+    // by a fetcher.
+    Sentry.captureException(error)
 
     if (error instanceof MissingTokenError) {
       // NJC doesn't have any generic component for displaying errors.

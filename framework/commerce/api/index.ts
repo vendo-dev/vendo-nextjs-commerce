@@ -17,6 +17,7 @@ import {
   AllOperations,
   APIOperations,
 } from './operations'
+import endpointWithSentryReporting from './utils/endpoint-with-sentry-reporting'
 
 export type APISchemas =
   | CartSchema
@@ -146,7 +147,12 @@ export const createEndpoint =
       options?: API['schema']['endpoint']['options']
     }
   ): NextApiHandler => {
-    return getEndpoint(commerce, { ...endpoint, ...context })
+    return getEndpoint(commerce, {
+      // Adding Sentry before NextJS Commerce catches all api errors
+      // inside `endpoint.handler`. Otherwise, they will not be reported.
+      ...endpointWithSentryReporting<API['endpoint']>(endpoint),
+      ...context,
+    })
   }
 
 export interface CommerceAPIConfig {

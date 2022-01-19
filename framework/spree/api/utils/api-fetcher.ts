@@ -10,6 +10,7 @@ import type {
   SpreeSdkResponseWithRawResponse,
 } from '../../types'
 import getServerSpreeClient from '../../utils/spree-clients/get-server-spree-client'
+import prettyPrintSpreeSdkErrors from '../../utils/pretty-print-spree-sdk-errors'
 
 // TODO: GraphQLFetcher<GraphQLFetcherResult<any>, any> should be GraphQLFetcher<GraphQLFetcherResult<any>, SpreeSdkVariables>.
 // But CommerceAPIConfig['fetch'] cannot be extended from Variables = any to SpreeSdkVariables.
@@ -57,6 +58,12 @@ const apiFetcher: GraphQLFetcher<GraphQLFetcherResult<any>, any> = async (
   const storeResponseError = storeResponse.fail()
 
   if (storeResponseError instanceof errors.SpreeError) {
+    console.error(
+      `Request to spree resulted in an error:\n\n${prettyPrintSpreeSdkErrors(
+        storeResponse.fail()
+      )}`
+    )
+
     throw convertSpreeErrorToGraphQlError(storeResponseError)
   }
 
