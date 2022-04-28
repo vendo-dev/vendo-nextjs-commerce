@@ -2,6 +2,7 @@ import { FC, useEffect, useState, useCallback } from 'react'
 import { validate } from 'email-validator'
 import { useUI } from '@components/ui/context'
 import { Logo, Button, Input } from '@components/ui'
+import getBrowserSpreeClient from '@framework/utils/spree-clients/get-browser-spree-client'
 
 interface Props {}
 
@@ -22,6 +23,13 @@ const ForgotPassword: FC<Props> = () => {
       setDirty(true)
       handleValidation()
     }
+    const spreeClient = getBrowserSpreeClient()
+    const response = await spreeClient.account.forgotPassword({
+      user: { email: email },
+    })
+    setMessage(
+      'The Reset Password email has been sent if the given address is in our database'
+    )
   }
 
   const handleValidation = useCallback(() => {
@@ -44,10 +52,7 @@ const ForgotPassword: FC<Props> = () => {
         <Logo width="64px" height="64px" />
       </div>
       <div className="flex flex-col space-y-4">
-        {message && (
-          <div className="text-red border border-red p-3">{message}</div>
-        )}
-
+        {message && <div className="border border-red p-3">{message}</div>}
         <Input placeholder="Email" onChange={setEmail} type="email" />
         <div className="pt-2 w-full flex flex-col">
           <Button

@@ -86,6 +86,15 @@ const LoginView: React.FC = () => {
           Log In
         </Button>
         <div className="pt-1 text-center text-sm">
+          <span className="text-accent-7">Did you {` `}</span>
+          <a
+            className="text-accent-9 inline font-bold hover:underline cursor-pointer"
+            onClick={() => setModalView('FORGOT_VIEW')}
+          >
+            forgot your password?
+          </a>
+        </div>
+        <div className="pt-1 text-center text-sm">
           <span className="text-accent-7">Don't have an account?</span>
           {` `}
           <a
